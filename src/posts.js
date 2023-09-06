@@ -12,39 +12,42 @@ import {
   RefreshControl,
 } from "react-native";
 
+import { connect } from "react-redux";
+import { fetchDataRequest } from "./actions";
+
 // Create the PostListScreen component
-const PostListScreen = ({ route, navigation }) => {
+const PostListScreen = ({
+  route,
+  navigation,
+  fetchDataRequest,
+  loading,
+  posts,
+  refreshing,
+}) => {
   // Initialize state variables
-  const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
+  // const [loading, setLoading] = useState(false);
+  // const [posts, setPosts] = useState([]);
+  // const [refreshing, setRefreshing] = useState(false);
 
   const { userId } = route.params;
 
   // Function to fetch posts from API
   const fetchPosts = useCallback(async () => {
     try {
-      const response = await fetch(
-        "https://jsonplaceholder.typicode.com/posts"
-      );
-      const data = await response.json();
-      setPosts(data.filter((d) => d.userId === userId));
+      fetchDataRequest({ userId });
     } catch (error) {
       Alert.alert("Error", "Failed to fetch posts");
     } finally {
-      setLoading(false);
-      setRefreshing(false);
     }
-  }, []);
+  }, [userId, fetchDataRequest]);
 
-  // Call the fetchPosts function when the component mounts or when fetchPosts changes
+  // Call the fetchPosts function when the component mounts or when userId changes
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
 
   // Function to handle refresh
   const handleRefresh = useCallback(() => {
-    setRefreshing(true);
     fetchPosts();
   }, []);
 
@@ -114,5 +117,21 @@ const styles = StyleSheet.create({
   },
 });
 
-// Export the PostListScreen component
-export default PostListScreen;
+// Map Redux state to component props
+const mapStateToProps = (state) => {
+  const { data } = state;
+  console.log("mapStateToProps:: ", data);
+  return {
+    posts: data.posts,
+    loading: data.loading,
+    refreshing: data.refreshing,
+  };
+};
+
+// Map Redux actions to component props
+const mapDispatchToProps = (dispatch) => ({
+  fetchDataRequest: (userId) => dispatch(fetchDataRequest(userId)),
+});
+
+// Connect the component to the Redux store
+export default connect(mapStateToProps, mapDispatchToProps)(PostListScreen);

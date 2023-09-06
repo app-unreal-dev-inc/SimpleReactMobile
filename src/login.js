@@ -4,8 +4,8 @@ import { userList } from "./constants";
 
 const LoginScreen = ({ navigation }) => {
   // State variables for username and password
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("opendoor");
+  const [password, setPassword] = useState("alohomora");
 
   // Function to handle login
   const handleLogin = async () => {
